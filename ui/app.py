@@ -8,6 +8,7 @@ from ui.historico import HistoricoFrame
 from ui.login import LoginFrame
 from ui.menu import MenuFrame
 from ui.saida import SaidaFrame
+from ui.sobre import SobreFrame
 from ui.usuarios import UsuariosFrame
 from ui.vagas import VagasFrame
 from ui.veiculos import VeiculosFrame
@@ -46,6 +47,7 @@ class EstacionamentoApp:
             ao_abrir_vagas=self._mostrar_vagas,
             ao_abrir_historico=self._mostrar_historico,
             ao_abrir_usuarios=self._mostrar_usuarios,
+            ao_abrir_sobre=self._mostrar_sobre,
             ao_sair=self._mostrar_login,
         ).pack(
             fill="both", expand=True
@@ -95,6 +97,13 @@ class EstacionamentoApp:
         UsuariosFrame(
             self.root,
             self.usuario_autenticado,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_sobre(self):
+        self._limpar_janela()
+        SobreFrame(
+            self.root,
             ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
         ).pack(fill="both", expand=True)
 
