@@ -17,11 +17,12 @@ class MenuFrame(ttk.Frame):
     )
 
     def __init__(self, master, usuario, ao_abrir_entrada, ao_abrir_saida,
-                 ao_abrir_vagas, ao_abrir_historico, ao_sair):
+                 ao_abrir_veiculos, ao_abrir_vagas, ao_abrir_historico, ao_sair):
         super().__init__(master, padding=28)
         self.usuario = usuario
         self.ao_abrir_entrada = ao_abrir_entrada
         self.ao_abrir_saida = ao_abrir_saida
+        self.ao_abrir_veiculos = ao_abrir_veiculos
         self.ao_abrir_vagas = ao_abrir_vagas
         self.ao_abrir_historico = ao_abrir_historico
         self.ao_sair = ao_sair
@@ -41,6 +42,8 @@ class MenuFrame(ttk.Frame):
                 opcoes = {"command": self.ao_abrir_entrada}
             if acao == "Saída de veículo":
                 opcoes = {"command": self.ao_abrir_saida}
+            if acao == "Veículos":
+                opcoes = {"command": self.ao_abrir_veiculos}
             if acao == "Vagas":
                 opcoes = {"command": self.ao_abrir_vagas}
             if acao == "Histórico":

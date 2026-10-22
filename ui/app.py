@@ -9,6 +9,7 @@ from ui.login import LoginFrame
 from ui.menu import MenuFrame
 from ui.saida import SaidaFrame
 from ui.vagas import VagasFrame
+from ui.veiculos import VeiculosFrame
 
 
 class EstacionamentoApp:
@@ -40,6 +41,7 @@ class EstacionamentoApp:
             usuario,
             ao_abrir_entrada=self._mostrar_entrada,
             ao_abrir_saida=self._mostrar_saida,
+            ao_abrir_veiculos=self._mostrar_veiculos,
             ao_abrir_vagas=self._mostrar_vagas,
             ao_abrir_historico=self._mostrar_historico,
             ao_sair=self._mostrar_login,
@@ -59,6 +61,14 @@ class EstacionamentoApp:
         self._limpar_janela()
         VagasFrame(
             self.root,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_veiculos(self):
+        self._limpar_janela()
+        VeiculosFrame(
+            self.root,
+            self.usuario_autenticado,
             ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
         ).pack(fill="both", expand=True)
 
