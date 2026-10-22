@@ -8,7 +8,9 @@ from database.connection import conectar
 from database.init_db import inicializar_banco
 
 
-TABELAS_ESPERADAS = {"usuario", "veiculo", "vaga", "movimentacao"}
+TABELAS_ESPERADAS = {
+    "usuario", "veiculo", "vaga", "movimentacao", "marca_importada"
+}
 
 
 def verificar():
@@ -47,6 +49,8 @@ def verificar():
             assert colunas["movimentacao"]["saida"]["notnull"] == 0
             assert colunas["movimentacao"]["valor"]["notnull"] == 0
             assert "ocupada" not in colunas["vaga"]
+            assert colunas["marca_importada"]["id"]["pk"] == 1
+            assert colunas["marca_importada"]["tipo"]["notnull"] == 1
 
             fks = {
                 linha[3]: (linha[2], linha[4], linha[6])
@@ -62,6 +66,21 @@ def verificar():
             assert _rejeita(conexao, "INSERT INTO usuario (username, senha, ativo) VALUES ('u', 's', 2)")
             assert _rejeita(conexao, "INSERT INTO veiculo (placa, modelo, cor, tipo) VALUES ('A', 'M', 'C', 3)")
             assert _rejeita(conexao, "INSERT INTO vaga (numero, tipo) VALUES ('1', 4)")
+            assert _rejeita(
+                conexao,
+                "INSERT INTO marca_importada (tipo, codigo, nome, importado_em) "
+                "VALUES (3, '1', 'Marca', 'agora')",
+            )
+            conexao.execute(
+                "INSERT INTO marca_importada (tipo, codigo, nome, importado_em) "
+                "VALUES (1, '1', 'Marca', 'agora')"
+            )
+            conexao.commit()
+            assert _rejeita(
+                conexao,
+                "INSERT INTO marca_importada (tipo, codigo, nome, importado_em) "
+                "VALUES (1, '1', 'Outra', 'agora')",
+            )
             assert _rejeita(conexao, "INSERT INTO movimentacao (veiculo_id, vaga_id, usuario_entrada_id, entrada, pcd) VALUES (99, 99, 99, 'agora', 0)")
         finally:
             conexao.close()

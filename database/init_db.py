@@ -40,6 +40,15 @@ CREATE TABLE IF NOT EXISTS movimentacao (
     FOREIGN KEY (usuario_entrada_id) REFERENCES usuario (id) ON DELETE RESTRICT,
     FOREIGN KEY (usuario_saida_id) REFERENCES usuario (id) ON DELETE RESTRICT
 );
+
+CREATE TABLE IF NOT EXISTS marca_importada (
+    id INTEGER PRIMARY KEY,
+    tipo INTEGER NOT NULL CHECK (tipo IN (1, 2)),
+    codigo TEXT NOT NULL,
+    nome TEXT NOT NULL,
+    importado_em TEXT NOT NULL,
+    UNIQUE (tipo, codigo)
+);
 """
 
 

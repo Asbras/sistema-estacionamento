@@ -3,9 +3,11 @@
 import tkinter as tk
 
 from database.init_db import inicializar_banco
+from ui.dados_importados import DadosImportadosFrame
 from ui.entrada import EntradaFrame
 from ui.historico import HistoricoFrame
 from ui.login import LoginFrame
+from ui.importacao import ImportacaoFrame
 from ui.menu import MenuFrame
 from ui.saida import SaidaFrame
 from ui.sobre import SobreFrame
@@ -48,6 +50,8 @@ class EstacionamentoApp:
             ao_abrir_historico=self._mostrar_historico,
             ao_abrir_usuarios=self._mostrar_usuarios,
             ao_abrir_sobre=self._mostrar_sobre,
+            ao_abrir_importacao=self._mostrar_importacao,
+            ao_abrir_dados_importados=self._mostrar_dados_importados,
             ao_sair=self._mostrar_login,
         ).pack(
             fill="both", expand=True
@@ -104,6 +108,22 @@ class EstacionamentoApp:
         self._limpar_janela()
         SobreFrame(
             self.root,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_importacao(self):
+        self._limpar_janela()
+        ImportacaoFrame(
+            self.root,
+            self.usuario_autenticado,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_dados_importados(self):
+        self._limpar_janela()
+        DadosImportadosFrame(
+            self.root,
+            self.usuario_autenticado,
             ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
         ).pack(fill="both", expand=True)
 
