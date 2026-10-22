@@ -45,8 +45,15 @@ CREATE TABLE IF NOT EXISTS movimentacao (
 
 def inicializar_banco(caminho=DEFAULT_DATABASE_PATH):
     """Cria as tabelas ausentes e retorna o caminho do banco inicializado."""
-    with conectar(caminho) as conexao:
+    conexao = conectar(caminho)
+    try:
         conexao.executescript(SCHEMA)
+        conexao.commit()
+    except Exception:
+        conexao.rollback()
+        raise
+    finally:
+        conexao.close()
     return caminho
 
 

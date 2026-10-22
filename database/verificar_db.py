@@ -18,7 +18,8 @@ def verificar():
         inicializar_banco(caminho)
         inicializar_banco(caminho)
 
-        with conectar(caminho) as conexao:
+        conexao = conectar(caminho)
+        try:
             tabelas = {
                 linha[0]
                 for linha in conexao.execute(
@@ -62,6 +63,8 @@ def verificar():
             assert _rejeita(conexao, "INSERT INTO veiculo (placa, modelo, cor, tipo) VALUES ('A', 'M', 'C', 3)")
             assert _rejeita(conexao, "INSERT INTO vaga (numero, tipo) VALUES ('1', 4)")
             assert _rejeita(conexao, "INSERT INTO movimentacao (veiculo_id, vaga_id, usuario_entrada_id, entrada, pcd) VALUES (99, 99, 99, 'agora', 0)")
+        finally:
+            conexao.close()
 
     print("Verificação concluída: tabelas, idempotência e restrições básicas OK.")
 
