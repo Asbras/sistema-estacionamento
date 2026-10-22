@@ -4,6 +4,7 @@ import tkinter as tk
 
 from database.init_db import inicializar_banco
 from ui.entrada import EntradaFrame
+from ui.historico import HistoricoFrame
 from ui.login import LoginFrame
 from ui.menu import MenuFrame
 from ui.saida import SaidaFrame
@@ -40,6 +41,7 @@ class EstacionamentoApp:
             ao_abrir_entrada=self._mostrar_entrada,
             ao_abrir_saida=self._mostrar_saida,
             ao_abrir_vagas=self._mostrar_vagas,
+            ao_abrir_historico=self._mostrar_historico,
             ao_sair=self._mostrar_login,
         ).pack(
             fill="both", expand=True
@@ -63,6 +65,14 @@ class EstacionamentoApp:
     def _mostrar_saida(self):
         self._limpar_janela()
         SaidaFrame(
+            self.root,
+            self.usuario_autenticado,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_historico(self):
+        self._limpar_janela()
+        HistoricoFrame(
             self.root,
             self.usuario_autenticado,
             ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),

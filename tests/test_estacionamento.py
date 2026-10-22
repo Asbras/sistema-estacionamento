@@ -11,6 +11,7 @@ from services.estacionamento import (
     ErroEstacionamento,
     buscar_movimentacao_aberta_por_placa,
     calcular_cobranca,
+    listar_historico_movimentacoes,
     listar_movimentacoes_abertas,
     obter_resumo_entrada,
     obter_resumo_saida,
@@ -195,6 +196,61 @@ class EstacionamentoTest(unittest.TestCase):
             [movimentacao["id"] for movimentacao in abertas_apos_saida],
             [segunda_movimentacao],
         )
+
+    def test_historico_mostra_movimentacoes_abertas_e_encerradas_com_funcionarios(self):
+        self.vaga("C1", 1)
+        self.vaga("C2", 1)
+        movimentacao_encerrada = self.entrada("ABC1234", 1)
+        movimentacao_aberta = self.entrada("XYZ9876", 1)
+        usuario_saida_id = usuarios.criar("funcionario_saida", "senha", self.database_path)
+        registrar_saida(
+            movimentacao_encerrada,
+            usuario_saida_id,
+            self.agora + timedelta(minutes=5),
+            self.database_path,
+        )
+
+        historico = listar_historico_movimentacoes(self.database_path)
+        self.assertEqual([item["id"] for item in historico], [
+            movimentacao_encerrada,
+            movimentacao_aberta,
+        ])
+        encerrada = historico[0]
+        aberta = historico[1]
+        self.assertEqual(encerrada["situacao"], "ENCERRADA")
+        self.assertEqual(encerrada["funcionario_entrada"], "funcionario")
+        self.assertEqual(encerrada["funcionario_saida"], "funcionario_saida")
+        self.assertEqual(encerrada["valor"], 10.0)
+        self.assertEqual(aberta["situacao"], "ABERTA")
+        self.assertEqual(aberta["funcionario_entrada"], "funcionario")
+        self.assertIsNone(aberta["funcionario_saida"])
+        self.assertIsNone(aberta["saida"])
+        self.assertIsNone(aberta["valor"])
+
+    def test_historico_filtra_por_placa_e_situacao(self):
+        self.vaga("C1", 1)
+        self.vaga("C2", 1)
+        movimentacao_encerrada = self.entrada("ABC1234", 1)
+        movimentacao_aberta = self.entrada("XYZ9876", 1)
+        registrar_saida(
+            movimentacao_encerrada,
+            self.usuario_id,
+            self.agora + timedelta(minutes=5),
+            self.database_path,
+        )
+
+        por_placa = listar_historico_movimentacoes(
+            self.database_path, filtro_placa="bc1"
+        )
+        self.assertEqual([item["id"] for item in por_placa], [movimentacao_encerrada])
+        abertas = listar_historico_movimentacoes(
+            self.database_path, situacao="ABERTAS"
+        )
+        self.assertEqual([item["id"] for item in abertas], [movimentacao_aberta])
+        encerradas = listar_historico_movimentacoes(
+            self.database_path, situacao="ENCERRADAS"
+        )
+        self.assertEqual([item["id"] for item in encerradas], [movimentacao_encerrada])
 
     def test_resumo_saida_apresenta_horario_e_valor(self):
         self.vaga("C1", 1)

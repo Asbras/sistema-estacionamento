@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 
 from database.connection import DEFAULT_DATABASE_PATH, conectar
-from database.repositories import movimentacoes, vagas, veiculos
+from database.repositories import movimentacoes, usuarios, vagas, veiculos
 from database.repositories._common import validar_categoria, validar_texto_obrigatorio
 
 
@@ -170,6 +170,28 @@ def listar_movimentacoes_abertas(caminho=DEFAULT_DATABASE_PATH, filtro_placa="")
     return resumos
 
 
+def listar_historico_movimentacoes(caminho=DEFAULT_DATABASE_PATH, filtro_placa="",
+                                   situacao="TODAS"):
+    """Retorna movimentações abertas e encerradas com dados para o histórico."""
+    situacoes_permitidas = ("TODAS", "ABERTAS", "ENCERRADAS")
+    if situacao not in situacoes_permitidas:
+        raise ValueError("situação deve ser TODAS, ABERTAS ou ENCERRADAS.")
+
+    filtro_normalizado = (filtro_placa or "").strip().casefold()
+    historico = []
+    for movimentacao in movimentacoes.listar(caminho):
+        resumo = _resumo_historico_movimentacao(movimentacao, caminho)
+        if filtro_normalizado not in resumo["placa"].casefold():
+            continue
+        if situacao == "ABERTAS" and resumo["situacao"] != "ABERTA":
+            continue
+        if situacao == "ENCERRADAS" and resumo["situacao"] != "ENCERRADA":
+            continue
+        historico.append(resumo)
+
+    return historico
+
+
 def obter_resumo_saida(movimentacao_id, caminho=DEFAULT_DATABASE_PATH):
     """Retorna os dados de uma movimentação encerrada para confirmação na UI."""
     movimentacao = movimentacoes.buscar_por_id(movimentacao_id, caminho)
@@ -188,6 +210,30 @@ def _resumo_movimentacao(movimentacao, caminho):
         "vaga_numero": vaga[1],
         "entrada": movimentacao[5],
         "saida": movimentacao[6],
+        "valor": movimentacao[8],
+    }
+
+
+def _resumo_historico_movimentacao(movimentacao, caminho):
+    veiculo = veiculos.buscar_por_id(movimentacao[1], caminho)
+    vaga = vagas.buscar_por_id(movimentacao[2], caminho)
+    usuario_entrada = usuarios.buscar_por_id(movimentacao[3], caminho)
+    usuario_saida = (
+        usuarios.buscar_por_id(movimentacao[4], caminho)
+        if movimentacao[4] is not None
+        else None
+    )
+    encerrada = movimentacao[6] is not None
+    return {
+        "id": movimentacao[0],
+        "placa": veiculo[1],
+        "modelo": veiculo[2],
+        "vaga_numero": vaga[1],
+        "funcionario_entrada": usuario_entrada[1],
+        "entrada": movimentacao[5],
+        "funcionario_saida": usuario_saida[1] if usuario_saida else None,
+        "saida": movimentacao[6],
+        "situacao": "ENCERRADA" if encerrada else "ABERTA",
         "valor": movimentacao[8],
     }
 
