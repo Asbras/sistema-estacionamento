@@ -17,7 +17,8 @@ class MenuFrame(ttk.Frame):
     )
 
     def __init__(self, master, usuario, ao_abrir_entrada, ao_abrir_saida,
-                 ao_abrir_veiculos, ao_abrir_vagas, ao_abrir_historico, ao_sair):
+                 ao_abrir_veiculos, ao_abrir_vagas, ao_abrir_historico,
+                 ao_abrir_usuarios, ao_sair):
         super().__init__(master, padding=28)
         self.usuario = usuario
         self.ao_abrir_entrada = ao_abrir_entrada
@@ -25,6 +26,7 @@ class MenuFrame(ttk.Frame):
         self.ao_abrir_veiculos = ao_abrir_veiculos
         self.ao_abrir_vagas = ao_abrir_vagas
         self.ao_abrir_historico = ao_abrir_historico
+        self.ao_abrir_usuarios = ao_abrir_usuarios
         self.ao_sair = ao_sair
 
         ttk.Label(self, text="Menu principal", font=("TkDefaultFont", 18, "bold")).pack(
@@ -48,6 +50,8 @@ class MenuFrame(ttk.Frame):
                 opcoes = {"command": self.ao_abrir_vagas}
             if acao == "Histórico":
                 opcoes = {"command": self.ao_abrir_historico}
+            if acao == "Usuários":
+                opcoes = {"command": self.ao_abrir_usuarios}
             botao = ttk.Button(grade, text=acao, **opcoes)
             botao.grid(
                 row=indice // 3,
