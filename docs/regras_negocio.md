@@ -55,6 +55,10 @@ Serão atendidos carros e motos, com algumas vagas reservadas para atendimento P
 
 - **RN23.** O sistema deve manter o histórico das movimentações. Registrar a saída de um veículo não deve apagar o registro de sua entrada.
 
+## Integração externa
+
+A tabela `marca_importada` é auxiliar e independente, utilizada somente para armazenar e exibir as marcas obtidas pela integração com a BrasilAPI, atendendo ao requisito acadêmico de importação de dados Web. Ela não possui relacionamento com `usuario`, `veiculo`, `vaga` ou `movimentacao` e, por isso, foi deliberadamente mantida fora do DER principal, que representa apenas o núcleo do domínio do estacionamento.
+
 ## Fora do escopo
 
 Não fazem parte do escopo desta versão do sistema:
