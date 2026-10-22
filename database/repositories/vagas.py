@@ -30,6 +30,18 @@ def listar(caminho=None):
     return consultar_todos("SELECT * FROM vaga ORDER BY id", caminho=caminho)
 
 
+def buscar_livres_por_tipo(tipo, caminho=None, conexao=None):
+    """Lista vagas do tipo informado sem movimentação aberta."""
+    return consultar_todos(
+        "SELECT vaga.* FROM vaga "
+        "WHERE vaga.tipo = ? AND NOT EXISTS ("
+        "SELECT 1 FROM movimentacao "
+        "WHERE movimentacao.vaga_id = vaga.id AND movimentacao.saida IS NULL"
+        ") ORDER BY vaga.id",
+        (tipo,), caminho, conexao,
+    )
+
+
 def atualizar(vaga_id, numero=None, tipo=None, caminho=None):
     alteracoes = []
     parametros = []

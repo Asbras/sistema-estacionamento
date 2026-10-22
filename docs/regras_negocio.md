@@ -49,6 +49,7 @@ Serão atendidos carros e motos, com algumas vagas reservadas para atendimento P
   - permanência superior a 1 hora e de até 2 horas: R$ 20,00;
   - permanência superior a 2 horas e de até 3 horas: R$ 30,00.
 - **RN22.** O tempo de permanência não precisa ser armazenado diretamente, pois pode ser calculado pela diferença entre os horários de saída e de entrada.
+- **RN24.** O horário de saída deve ser posterior ao horário de entrada. Caso o horário de saída seja igual ou anterior ao horário de entrada, a operação deve ser rejeitada e nenhuma alteração deve ser persistida.
 
 ## Histórico de movimentações
 

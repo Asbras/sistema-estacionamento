@@ -16,11 +16,11 @@ def _validar(placa, modelo, cor, tipo):
     validar_categoria("tipo", tipo, (1, 2))
 
 
-def criar(placa, modelo, cor, tipo, caminho=None):
+def criar(placa, modelo, cor, tipo, caminho=None, conexao=None):
     _validar(placa, modelo, cor, tipo)
     return executar(
         "INSERT INTO veiculo (placa, modelo, cor, tipo) VALUES (?, ?, ?, ?)",
-        (placa, modelo, cor, tipo), caminho, retornar_id=True,
+        (placa, modelo, cor, tipo), caminho, retornar_id=True, conexao=conexao,
     )
 
 
@@ -28,8 +28,10 @@ def buscar_por_id(veiculo_id, caminho=None):
     return consultar_um("SELECT * FROM veiculo WHERE id = ?", (veiculo_id,), caminho)
 
 
-def buscar_por_placa(placa, caminho=None):
-    return consultar_um("SELECT * FROM veiculo WHERE placa = ?", (placa,), caminho)
+def buscar_por_placa(placa, caminho=None, conexao=None):
+    return consultar_um(
+        "SELECT * FROM veiculo WHERE placa = ?", (placa,), caminho, conexao
+    )
 
 
 def listar(caminho=None):

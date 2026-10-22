@@ -14,7 +14,11 @@ def validar_categoria(campo, valor, permitidos):
         raise ValueError(f"{campo} deve ser um dos valores: {opcoes}.")
 
 
-def executar(sql, parametros=(), caminho=None, retornar_id=False):
+def executar(sql, parametros=(), caminho=None, retornar_id=False, conexao=None):
+    if conexao is not None:
+        cursor = conexao.execute(sql, parametros)
+        return cursor.lastrowid if retornar_id else cursor.rowcount
+
     conexao = conectar(caminho)
     try:
         cursor = conexao.execute(sql, parametros)
@@ -29,7 +33,10 @@ def executar(sql, parametros=(), caminho=None, retornar_id=False):
         conexao.close()
 
 
-def consultar_um(sql, parametros=(), caminho=None):
+def consultar_um(sql, parametros=(), caminho=None, conexao=None):
+    if conexao is not None:
+        return conexao.execute(sql, parametros).fetchone()
+
     conexao = conectar(caminho)
     try:
         return conexao.execute(sql, parametros).fetchone()
@@ -37,7 +44,10 @@ def consultar_um(sql, parametros=(), caminho=None):
         conexao.close()
 
 
-def consultar_todos(sql, parametros=(), caminho=None):
+def consultar_todos(sql, parametros=(), caminho=None, conexao=None):
+    if conexao is not None:
+        return conexao.execute(sql, parametros).fetchall()
+
     conexao = conectar(caminho)
     try:
         return conexao.execute(sql, parametros).fetchall()
