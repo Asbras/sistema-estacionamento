@@ -20,7 +20,7 @@ class MenuFrame(ttk.Frame):
     def __init__(self, master, usuario, ao_abrir_entrada, ao_abrir_saida,
                  ao_abrir_veiculos, ao_abrir_vagas, ao_abrir_historico,
                  ao_abrir_usuarios, ao_abrir_sobre, ao_abrir_importacao,
-                 ao_abrir_dados_importados, ao_sair):
+                 ao_abrir_dados_importados, ao_abrir_exportacao, ao_sair):
         super().__init__(master, padding=28)
         self.usuario = usuario
         self.ao_abrir_entrada = ao_abrir_entrada
@@ -32,6 +32,7 @@ class MenuFrame(ttk.Frame):
         self.ao_abrir_sobre = ao_abrir_sobre
         self.ao_abrir_importacao = ao_abrir_importacao
         self.ao_abrir_dados_importados = ao_abrir_dados_importados
+        self.ao_abrir_exportacao = ao_abrir_exportacao
         self.ao_sair = ao_sair
 
         ttk.Label(self, text="Menu principal", font=("TkDefaultFont", 18, "bold")).pack(
@@ -63,6 +64,8 @@ class MenuFrame(ttk.Frame):
                 opcoes = {"command": self.ao_abrir_importacao}
             if acao == "Dados importados":
                 opcoes = {"command": self.ao_abrir_dados_importados}
+            if acao == "Exportar dados":
+                opcoes = {"command": self.ao_abrir_exportacao}
             botao = ttk.Button(grade, text=acao, **opcoes)
             botao.grid(
                 row=indice // 3,

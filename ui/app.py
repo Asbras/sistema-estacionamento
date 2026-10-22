@@ -5,6 +5,7 @@ import tkinter as tk
 from database.init_db import inicializar_banco
 from ui.dados_importados import DadosImportadosFrame
 from ui.entrada import EntradaFrame
+from ui.exportacao import ExportacaoFrame
 from ui.historico import HistoricoFrame
 from ui.login import LoginFrame
 from ui.importacao import ImportacaoFrame
@@ -52,6 +53,7 @@ class EstacionamentoApp:
             ao_abrir_sobre=self._mostrar_sobre,
             ao_abrir_importacao=self._mostrar_importacao,
             ao_abrir_dados_importados=self._mostrar_dados_importados,
+            ao_abrir_exportacao=self._mostrar_exportacao,
             ao_sair=self._mostrar_login,
         ).pack(
             fill="both", expand=True
@@ -122,6 +124,14 @@ class EstacionamentoApp:
     def _mostrar_dados_importados(self):
         self._limpar_janela()
         DadosImportadosFrame(
+            self.root,
+            self.usuario_autenticado,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
+
+    def _mostrar_exportacao(self):
+        self._limpar_janela()
+        ExportacaoFrame(
             self.root,
             self.usuario_autenticado,
             ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
