@@ -42,6 +42,14 @@ def buscar_aberta_para_veiculo(veiculo_id, caminho=None, conexao=None):
     )
 
 
+def buscar_aberta_para_vaga(vaga_id, caminho=None, conexao=None):
+    return consultar_um(
+        "SELECT * FROM movimentacao WHERE vaga_id = ? AND saida IS NULL "
+        "ORDER BY id LIMIT 1",
+        (vaga_id,), caminho, conexao,
+    )
+
+
 def criar(veiculo_id, vaga_id, usuario_entrada_id, entrada, pcd,
           caminho=None, conexao=None):
     return executar(
