@@ -140,6 +140,58 @@ def obter_resumo_entrada(movimentacao_id, caminho=DEFAULT_DATABASE_PATH):
     }
 
 
+def buscar_movimentacao_aberta_por_placa(placa, caminho=DEFAULT_DATABASE_PATH):
+    """Localiza a movimentação aberta de um veículo pela placa."""
+    validar_texto_obrigatorio("placa", placa)
+    veiculo = veiculos.buscar_por_placa(placa, caminho)
+    if veiculo is None:
+        raise ErroEstacionamento("Veículo não encontrado.")
+    movimentacao = movimentacoes.buscar_aberta_para_veiculo(veiculo[0], caminho)
+    if movimentacao is None:
+        raise ErroEstacionamento("O veículo não possui movimentação aberta.")
+    return _resumo_movimentacao(movimentacao, caminho)
+
+
+def listar_movimentacoes_abertas(caminho=DEFAULT_DATABASE_PATH, filtro_placa=""):
+    """Retorna os dados das movimentações abertas para exibição na aplicação.
+
+    O filtro é opcional, parcial e não diferencia maiúsculas de minúsculas.
+    A consulta permanece no repository; este serviço apenas prepara os dados
+    necessários para os consumidores da aplicação.
+    """
+    filtro_normalizado = (filtro_placa or "").strip().casefold()
+    resumos = []
+
+    for movimentacao in movimentacoes.listar_abertas(caminho):
+        resumo = _resumo_movimentacao(movimentacao, caminho)
+        if filtro_normalizado in resumo["placa"].casefold():
+            resumos.append(resumo)
+
+    return resumos
+
+
+def obter_resumo_saida(movimentacao_id, caminho=DEFAULT_DATABASE_PATH):
+    """Retorna os dados de uma movimentação encerrada para confirmação na UI."""
+    movimentacao = movimentacoes.buscar_por_id(movimentacao_id, caminho)
+    if movimentacao is None or movimentacao[6] is None:
+        raise ErroEstacionamento("Movimentação encerrada não encontrada.")
+    return _resumo_movimentacao(movimentacao, caminho)
+
+
+def _resumo_movimentacao(movimentacao, caminho):
+    veiculo = veiculos.buscar_por_id(movimentacao[1], caminho)
+    vaga = vagas.buscar_por_id(movimentacao[2], caminho)
+    return {
+        "id": movimentacao[0],
+        "placa": veiculo[1],
+        "modelo": veiculo[2],
+        "vaga_numero": vaga[1],
+        "entrada": movimentacao[5],
+        "saida": movimentacao[6],
+        "valor": movimentacao[8],
+    }
+
+
 def _como_datetime(valor, campo):
     if isinstance(valor, datetime):
         return valor

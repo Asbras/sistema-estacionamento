@@ -16,10 +16,12 @@ class MenuFrame(ttk.Frame):
         "Sobre",
     )
 
-    def __init__(self, master, usuario, ao_abrir_entrada, ao_abrir_vagas, ao_sair):
+    def __init__(self, master, usuario, ao_abrir_entrada, ao_abrir_saida,
+                 ao_abrir_vagas, ao_sair):
         super().__init__(master, padding=28)
         self.usuario = usuario
         self.ao_abrir_entrada = ao_abrir_entrada
+        self.ao_abrir_saida = ao_abrir_saida
         self.ao_abrir_vagas = ao_abrir_vagas
         self.ao_sair = ao_sair
 
@@ -36,6 +38,8 @@ class MenuFrame(ttk.Frame):
             opcoes = {"state": "disabled"}
             if acao == "Entrada de veículo":
                 opcoes = {"command": self.ao_abrir_entrada}
+            if acao == "Saída de veículo":
+                opcoes = {"command": self.ao_abrir_saida}
             if acao == "Vagas":
                 opcoes = {"command": self.ao_abrir_vagas}
             botao = ttk.Button(grade, text=acao, **opcoes)

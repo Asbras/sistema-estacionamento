@@ -9,8 +9,11 @@ from database.init_db import inicializar_banco
 from database.repositories import movimentacoes, usuarios, vagas, veiculos
 from services.estacionamento import (
     ErroEstacionamento,
+    buscar_movimentacao_aberta_por_placa,
     calcular_cobranca,
+    listar_movimentacoes_abertas,
     obter_resumo_entrada,
+    obter_resumo_saida,
     registrar_entrada,
     registrar_saida,
 )
@@ -136,6 +139,73 @@ class EstacionamentoTest(unittest.TestCase):
         self.assertEqual(resumo["placa"], "CARRO1")
         self.assertEqual(resumo["vaga_numero"], "C1")
         self.assertEqual(resumo["entrada"], self.agora.isoformat())
+
+    def test_busca_movimentacao_aberta_por_placa_retorna_dados_da_saida(self):
+        self.vaga("C1", 1)
+        self.entrada("CARRO1", 1)
+        resumo = buscar_movimentacao_aberta_por_placa("CARRO1", self.database_path)
+        self.assertEqual(resumo["placa"], "CARRO1")
+        self.assertEqual(resumo["modelo"], "Modelo")
+        self.assertEqual(resumo["vaga_numero"], "C1")
+        self.assertEqual(resumo["entrada"], self.agora.isoformat())
+        self.assertIsNone(resumo["saida"])
+        self.assertIsNone(resumo["valor"])
+
+    def test_busca_saida_rejeita_placa_inexistente_ou_sem_movimentacao_aberta(self):
+        with self.assertRaisesRegex(ErroEstacionamento, "Veículo não encontrado"):
+            buscar_movimentacao_aberta_por_placa("INEXISTENTE", self.database_path)
+
+        self.vaga("C1", 1)
+        movimentacao_id = self.entrada("CARRO1", 1)
+        registrar_saida(
+            movimentacao_id,
+            self.usuario_id,
+            self.agora + timedelta(minutes=5),
+            self.database_path,
+        )
+        with self.assertRaisesRegex(ErroEstacionamento, "não possui movimentação aberta"):
+            buscar_movimentacao_aberta_por_placa("CARRO1", self.database_path)
+
+    def test_lista_movimentacoes_abertas_filtra_placa_parcial_sem_diferenciar_maiusculas(self):
+        self.vaga("C1", 1)
+        self.vaga("C2", 1)
+        primeira_movimentacao = self.entrada("ABC1234", 1)
+        segunda_movimentacao = self.entrada("XYZ9876", 1)
+
+        abertas = listar_movimentacoes_abertas(self.database_path)
+        self.assertEqual(
+            [movimentacao["id"] for movimentacao in abertas],
+            [primeira_movimentacao, segunda_movimentacao],
+        )
+
+        filtradas = listar_movimentacoes_abertas(self.database_path, "c12")
+        self.assertEqual(len(filtradas), 1)
+        self.assertEqual(filtradas[0]["placa"], "ABC1234")
+        self.assertEqual(filtradas[0]["modelo"], "Modelo")
+        self.assertEqual(filtradas[0]["vaga_numero"], "C1")
+
+        registrar_saida(
+            primeira_movimentacao,
+            self.usuario_id,
+            self.agora + timedelta(minutes=5),
+            self.database_path,
+        )
+        abertas_apos_saida = listar_movimentacoes_abertas(self.database_path)
+        self.assertEqual(
+            [movimentacao["id"] for movimentacao in abertas_apos_saida],
+            [segunda_movimentacao],
+        )
+
+    def test_resumo_saida_apresenta_horario_e_valor(self):
+        self.vaga("C1", 1)
+        movimentacao_id = self.entrada("CARRO1", 1)
+        saida = self.agora + timedelta(hours=1, minutes=1)
+        registrar_saida(movimentacao_id, self.usuario_id, saida, self.database_path)
+        resumo = obter_resumo_saida(movimentacao_id, self.database_path)
+        self.assertEqual(resumo["placa"], "CARRO1")
+        self.assertEqual(resumo["vaga_numero"], "C1")
+        self.assertEqual(resumo["saida"], saida.isoformat())
+        self.assertEqual(resumo["valor"], 20.0)
 
     def test_saida_encerra_movimentacao_registra_usuario_e_libera_vaga(self):
         vaga_id = self.vaga("C1", 1)
