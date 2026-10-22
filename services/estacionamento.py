@@ -125,6 +125,21 @@ def registrar_saida(movimentacao_id, usuario_saida_id, momento=None,
         conexao.close()
 
 
+def obter_resumo_entrada(movimentacao_id, caminho=DEFAULT_DATABASE_PATH):
+    """Retorna dados da movimentação necessários para confirmar a entrada na UI."""
+    movimentacao = movimentacoes.buscar_por_id(movimentacao_id, caminho)
+    if movimentacao is None:
+        raise ErroEstacionamento("Movimentação não encontrada.")
+    veiculo = veiculos.buscar_por_id(movimentacao[1], caminho)
+    vaga = vagas.buscar_por_id(movimentacao[2], caminho)
+    return {
+        "id": movimentacao[0],
+        "placa": veiculo[1],
+        "vaga_numero": vaga[1],
+        "entrada": movimentacao[5],
+    }
+
+
 def _como_datetime(valor, campo):
     if isinstance(valor, datetime):
         return valor

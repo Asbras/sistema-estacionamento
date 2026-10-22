@@ -3,6 +3,7 @@
 import tkinter as tk
 
 from database.init_db import inicializar_banco
+from ui.entrada import EntradaFrame
 from ui.login import LoginFrame
 from ui.menu import MenuFrame
 
@@ -31,9 +32,22 @@ class EstacionamentoApp:
     def _mostrar_menu(self, usuario):
         self.usuario_autenticado = usuario
         self._limpar_janela()
-        MenuFrame(self.root, usuario, ao_sair=self._mostrar_login).pack(
+        MenuFrame(
+            self.root,
+            usuario,
+            ao_abrir_entrada=self._mostrar_entrada,
+            ao_sair=self._mostrar_login,
+        ).pack(
             fill="both", expand=True
         )
+
+    def _mostrar_entrada(self):
+        self._limpar_janela()
+        EntradaFrame(
+            self.root,
+            self.usuario_autenticado,
+            ao_voltar=lambda: self._mostrar_menu(self.usuario_autenticado),
+        ).pack(fill="both", expand=True)
 
 
 def executar():

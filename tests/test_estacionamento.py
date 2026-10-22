@@ -10,6 +10,7 @@ from database.repositories import movimentacoes, usuarios, vagas, veiculos
 from services.estacionamento import (
     ErroEstacionamento,
     calcular_cobranca,
+    obter_resumo_entrada,
     registrar_entrada,
     registrar_saida,
 )
@@ -126,6 +127,15 @@ class EstacionamentoTest(unittest.TestCase):
         self.assertIsNone(registro[6])
         self.assertEqual(registro[7], 0)
         self.assertIsNone(registro[8])
+
+    def test_resumo_da_entrada_informa_placa_e_vaga_atribuida(self):
+        self.vaga("C1", 1)
+        movimentacao_id = self.entrada("CARRO1", 1)
+        resumo = obter_resumo_entrada(movimentacao_id, self.database_path)
+        self.assertEqual(resumo["id"], movimentacao_id)
+        self.assertEqual(resumo["placa"], "CARRO1")
+        self.assertEqual(resumo["vaga_numero"], "C1")
+        self.assertEqual(resumo["entrada"], self.agora.isoformat())
 
     def test_saida_encerra_movimentacao_registra_usuario_e_libera_vaga(self):
         vaga_id = self.vaga("C1", 1)
