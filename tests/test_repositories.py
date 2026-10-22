@@ -7,6 +7,7 @@ from pathlib import Path
 
 from database.connection import conectar
 from database.init_db import inicializar_banco
+from database.passwords import verificar_senha
 from database.repositories import movimentacoes, usuarios, vagas, veiculos
 
 
@@ -30,7 +31,15 @@ class RepositoriesTest(unittest.TestCase):
             usuarios.atualizar(usuario_id, username="ana.s", senha="nova", caminho=self.database_path),
             1,
         )
-        self.assertEqual(usuarios.buscar_por_id(usuario_id, self.database_path)[1:3], ("ana.s", "nova"))
+        registro = usuarios.buscar_por_id(usuario_id, self.database_path)
+        self.assertEqual(registro[1], "ana.s")
+        self.assertTrue(verificar_senha("nova", registro[2]))
+        self.assertNotEqual(registro[2], "nova")
+        senha_hash = registro[2]
+        usuarios.atualizar(usuario_id, senha=senha_hash, caminho=self.database_path)
+        self.assertEqual(
+            usuarios.buscar_por_id(usuario_id, self.database_path)[2], senha_hash
+        )
         self.assertEqual(usuarios.definir_ativo(usuario_id, 0, self.database_path), 1)
         self.assertEqual(usuarios.definir_ativo(usuario_id, 1, self.database_path), 1)
         with self.assertRaises(ValueError):
